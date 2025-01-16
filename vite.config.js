@@ -9,10 +9,14 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
+      devOptions: {
+        enabled: true, // Enable service worker during development
+      },
+
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
       manifest: {
-        name: "Vite PWA Project",
-        short_name: "Vite PWA Project",
+        name: "KishanCash",
+        short_name: "PoS",
         theme_color: "#ffffff",
         icons: [
           {
