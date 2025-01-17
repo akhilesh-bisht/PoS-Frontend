@@ -10,6 +10,7 @@ import SalesPage from "./Pages/SalesPage";
 import PurchasePage from "./Pages/PurchasePage";
 import CreditPage from "./Pages/CreditPage";
 import ProfileSettings from "./Pages/Profile";
+import BillsAccordion from "./components/Bills";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
               <Route path="/purchase" element={<PurchasePage />} />
               <Route path="/credit" element={<CreditPage />} />
               <Route path="/profile" element={<ProfileSettings />} />
+              <Route path="/bills" element={<BillsAccordion />} />
             </Routes>
           </div>
         </div>
