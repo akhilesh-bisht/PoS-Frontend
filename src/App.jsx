@@ -31,6 +31,7 @@ function App() {
               <Route path="/credit" element={<CreditPage />} />
               <Route path="/profile" element={<ProfileSettings />} />
               <Route path="/bills" element={<BillsAccordion />} />
+              <Route path="/purchase" element={<BillsAccordion />} />
             </Routes>
           </div>
         </div>
