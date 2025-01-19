@@ -1,5 +1,5 @@
 import React from "react";
-
+import Button from "../Button";
 const PaymentManagement = () => {
   const transactions = [
     {
@@ -32,22 +32,19 @@ const PaymentManagement = () => {
           <h2 className=" md:text-2xl  font-semibold w-full">
             Payment Management
           </h2>
-          <button className="bg-blue-600 text-white text-xs px-0.5  w-[216px] md:w-44 lg:w-60 py-1 rounded-lg flex items-center gap-1 hover:bg-blue-700 transition-colors focus:outline-none ml-1">
-            <svg
-              className=" w-3 h-3 sm:w-5 sm:h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+
+          <Button
+            label=" Record Payment"
+            icon={
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"
               />
-            </svg>
-            Record Payment
-          </button>
+            }
+            styles="bg-blue-500 hover:bg-blue-600 w-56 md:w-48 xl:w-48"
+          />
         </div>
 
         <div className="flex flex-wrap gap-3">

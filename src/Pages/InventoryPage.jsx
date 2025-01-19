@@ -1,5 +1,5 @@
 import InventoryTable from "../components/Inventory/Table";
-import Pagination from "../components/Inventory/Pagination";
+import Pagination from "../components/Pagination";
 import MainInventory from "../components/Inventory/MainInventory";
 import InventoryHeader from "../components/Inventory/AddProduct";
 

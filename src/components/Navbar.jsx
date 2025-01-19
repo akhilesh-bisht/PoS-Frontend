@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { GoBell } from "react-icons/go";
+import Cart from "../components/Cart";
 
 const Navbar = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -72,6 +73,9 @@ const Navbar = () => {
           />
         </div>
 
+        <div className="mr-4 flex justify-center mt-2 bg-white ">
+          <Cart />
+        </div>
         {/* Install Button - Only show if the app is not installed */}
         {!isInstalled && (
           <div className="flex items-center justify-center mr-4">

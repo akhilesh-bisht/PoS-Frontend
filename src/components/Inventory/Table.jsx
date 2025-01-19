@@ -84,6 +84,12 @@ const InventoryTable = ({
                         type="text"
                         className="border  bg-green-400 p-2"
                         value={editingProduct.stock}
+                        onChange={(e) =>
+                          setEditingProduct({
+                            ...editingProduct,
+                            stock: e.target.value,
+                          })
+                        }
                       />
                     ) : (
                       product.stock
