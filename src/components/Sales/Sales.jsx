@@ -4,8 +4,8 @@ import Button from "../Button";
 import { useNavigate } from "react-router-dom";
 const SalesManagement = () => {
   const navigate = useNavigate();
-  const gotoPurchase = () => {
-    navigate("/sales/purchaseProduct");
+  const gotoSaleItem = () => {
+    navigate("/sales/saleItem");
   };
   return (
     <section id="sales" className="p-2 space-y-6">
@@ -29,7 +29,7 @@ const SalesManagement = () => {
           />
 
           <Button
-            label="Purchase"
+            label="Create Invoice"
             icon={
               <path
                 strokeLinecap="round"
@@ -38,8 +38,8 @@ const SalesManagement = () => {
                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"
               />
             }
-            onClick={gotoPurchase}
-            styles="bg-green-500 hover:bg-green-600"
+            onClick={gotoSaleItem}
+            styles="bg-green-500 hover:bg-green-600 w-64 md:w-52 xl:w-48"
           />
         </div>
 

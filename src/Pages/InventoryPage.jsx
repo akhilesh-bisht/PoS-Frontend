@@ -11,7 +11,7 @@ const InventoryPage = () => {
         <MainInventory />
       </div>
       <InventoryTable />
-      <Pagination />
+      {/* <Pagination /> */}
     </div>
   );
 };

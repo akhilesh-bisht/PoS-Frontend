@@ -78,14 +78,14 @@ const Cart = () => {
       </div>
       {/* Cart Icon */}
       <FaShoppingCart
-        size={55}
+        size={50}
         onClick={() => setActiveCart(!activeCart)}
         className={`-top-16 right-12 sm:right-14 text-5xl p-3  bg-white  rounded-full cursor-pointer sticky  ${
           totalQty > 0 ? "block" : "hidden"
         }`}
       />
       <span
-        className={` text-[10px] w-5 h-5  top-1 bg-red-600  rounded-full cursor-pointer text-center text-white absolute ${
+        className={` text-[10px] w-4 h-4  sm:w-5 sm:h-5  top-1 bg-red-600  rounded-full cursor-pointer text-center text-white absolute ${
           totalQty > 0 ? "block" : "hidden"
         }`}
       >

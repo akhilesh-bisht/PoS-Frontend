@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { GoBell } from "react-icons/go";
 import Cart from "../components/Cart";
 
+import { Link } from "react-router-dom";
+
 const Navbar = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -66,11 +68,26 @@ const Navbar = () => {
       <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 top-0 z-10 w-[90%] lg:w-[75%] xl:w-[80%] fixed">
         {/* Search Bar */}
         <div className="flex-1 px-4">
-          <input
+          {/* <input
             type="search"
             placeholder="Search..."
             className="w-[75%] max-w-md px-4 text-xs md:text-base py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
-          />
+          /> */}
+          <div className="flex flex-col  w-20 sm:flex-row sm:gap-4 sm:mt-4 sm:w-full">
+            {/* Add Stock Button */}
+            <Link to="/Inventory">
+              <button className="bg-green-500 text-white text-[8px] md:text-base px-4 py-1 rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
+                Add Stock
+              </button>
+            </Link>
+
+            {/* Create Invoice Button */}
+            <Link to="/sales/saleItem">
+              <button className="bg-blue-500 text-white px-4 py-1 text-[7px] md:text-base rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition">
+                Create Invoice
+              </button>
+            </Link>
+          </div>
         </div>
 
         <div className="mr-4 flex justify-center mt-2 bg-white ">

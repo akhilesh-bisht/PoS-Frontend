@@ -1,22 +1,82 @@
 import React, { useState } from "react";
 import Card from "../DashComp/Card";
 import Button from "../Button";
+import InvoiceDetails from "./InvoivePurchase";
+import ProductForm from "./ProductFrom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addInvoice,
+  updateInvoice,
+} from "../../redux/Slices/purchaseInvoiceSlice";
+import { addProduct } from "../../redux/Slices/productsSlice";
 
-const InventoryHeader = ({ onAddProduct }) => {
-  const [isSliderOpen, setIsSliderOpen] = useState(false);
+const InventoryHeader = () => {
+  const [isPurchasePopupOpen, setIsPurchasePopupOpen] = useState(false);
+  const [isProductFormOpen, setIsProductFormOpen] = useState(false); // Track product form visibility
+  const [invoiceData, setInvoiceData] = useState({
+    purchaseDate: "",
+    partyId: "",
+    purchaseInvoice: "",
+  });
 
-  const toggleSlider = () => {
-    setIsSliderOpen(!isSliderOpen);
+  const [productData, setProductData] = useState({
+    name: "",
+    category: "",
+    stock: "",
+    price: "",
+    status: "",
+  });
+  const dispatch = useDispatch();
+  const invoices = useSelector((state) => state.purchaseInvoices);
+  const products = useSelector((state) => state.products);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setInvoiceData({ ...invoiceData, [name]: value });
+  };
+
+  const togglePurchasePopup = () => {
+    setIsPurchasePopupOpen(!isPurchasePopupOpen);
+    if (!isPurchasePopupOpen) {
+      setInvoiceData({
+        purchaseDate: "",
+        partyId: invoices.partyId || "",
+        purchaseInvoice: invoices.purchaseInvoice || "",
+      });
+    }
+  };
+
+  const handlePurchaseSubmit = (e) => {
+    e.preventDefault();
+    if (invoiceData.partyId === invoices.partyId) {
+      dispatch(updateInvoice(invoiceData));
+    } else {
+      dispatch(addInvoice(invoiceData));
+    }
+    togglePurchasePopup();
+    setIsProductFormOpen(true);
+  };
+
+  const handleProductSubmit = (e) => {
+    e.preventDefault();
+    dispatch(addProduct(productData));
+    setIsProductFormOpen(false);
+    setProductData({
+      name: "",
+      category: "",
+      stock: "",
+      price: "",
+      status: "",
+    });
   };
 
   const data = [
     {
       title: "Total Products",
-      value: "486",
+      value: products.length,
       indicator: "Active",
       indicatorColor: "green",
     },
-
     {
       title: "Low Stock Items",
       value: "12",
@@ -33,10 +93,9 @@ const InventoryHeader = ({ onAddProduct }) => {
 
   return (
     <div className="relative">
-      {/* Inventory Header */}
-      <div className="flex flex-col md:flex-row  md:items-center md:justify-between gap-5 mt-2">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mt-2">
         <div className="flex items-center gap-1 w-full md:gap-4">
-          <h2 className=" w-64 md:text-2xl sm:w-72 font-semibold">
+          <h2 className="w-64 md:text-2xl sm:w-72 font-semibold">
             Inventory Management
           </h2>
           <Button
@@ -49,41 +108,22 @@ const InventoryHeader = ({ onAddProduct }) => {
                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"
               />
             }
-            onClick={toggleSlider}
+            onClick={togglePurchasePopup}
             styles="bg-blue-500 hover:bg-blue-600"
           />
         </div>
         <div className="flex flex-wrap gap-3">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search products..."
-              className="pl-10 pr-4 py-1 border    text-xs   md:text-sm border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-              aria-label="Search Products"
-            />
-            <svg
-              className=" w-3 h-3 md:w-5 md:h-5 absolute left-3 top-2 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-          </div>
-          <select
-            className="px-2 py-1 md:py-2 border border-gray-300  text-xs md:text-base rounded-lg focus:outline-none focus:border-blue-500"
-            aria-label="Category Filter"
-          >
+          <input
+            type="text"
+            placeholder="Search products..."
+            className="pl-10 pr-4 py-1 border text-xs md:text-sm border-gray-300 rounded-lg"
+          />
+          <select className="px-2 py-1 md:py-2 border text-xs md:text-base rounded-lg">
             <option value="">All Categories</option>
-            <option value="fertilizers">Fertilizers</option>
-            <option value="seeds">Seeds</option>
-            <option value="machinery">Machinery</option>
-            <option value="pesticides">Pesticides</option>
+            <option value="Fertilizers">Fertilizers</option>
+            <option value="Seeds">Seeds</option>
+            <option value="Machinery">Machinery</option>
+            <option value="Pesticides">Pesticides</option>
           </select>
         </div>
       </div>
@@ -96,63 +136,21 @@ const InventoryHeader = ({ onAddProduct }) => {
         </div>
       </section>
 
-      {/* Slider */}
-      {isSliderOpen && (
-        <>
-          {/* Backdrop */}
-          <div
-            onClick={toggleSlider}
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
-          ></div>
-          <div className="fixed top-0 right-0 w-full md:w-1/3 h-full bg-white shadow-lg z-50 transition-transform transform translate-x-0">
-            <div className="p-6">
-              <h3 className=" text-base md:text-lg font-medium mb-4">
-                Add Product
-              </h3>
-              <form className="space-y-4 text-sm">
-                <input
-                  type="text"
-                  placeholder="Product Name"
-                  className="w-full border p-2 rounded text-sm"
-                />
-                <input
-                  type="text"
-                  placeholder="Category"
-                  className="w-full border p-2 rounded"
-                />
-                <input
-                  type="text"
-                  placeholder="Stock"
-                  className="w-full border p-2 rounded"
-                />
-                <input
-                  type="text"
-                  placeholder="Price"
-                  className="w-full border p-2 rounded"
-                />
-                <input
-                  type="text"
-                  placeholder="Status"
-                  className="w-full border p-2 rounded"
-                />
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition text-sm"
-                  onClick={onAddProduct}
-                >
-                  Add Product
-                </button>
-                <button
-                  type="button"
-                  onClick={toggleSlider}
-                  className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 transition text-sm ml-1"
-                >
-                  Close
-                </button>
-              </form>
-            </div>
-          </div>
-        </>
+      <InvoiceDetails
+        isOpen={isPurchasePopupOpen}
+        invoiceData={invoiceData}
+        handleChange={handleChange}
+        handlePurchaseSubmit={handlePurchaseSubmit}
+        togglePurchasePopup={togglePurchasePopup}
+      />
+
+      {isProductFormOpen && (
+        <ProductForm
+          productData={productData}
+          setProductData={setProductData}
+          handleSubmit={handleProductSubmit}
+          setIsProductFormOpen={setIsProductFormOpen}
+        />
       )}
     </div>
   );

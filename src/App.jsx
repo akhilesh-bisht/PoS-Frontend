@@ -10,7 +10,7 @@ import SalesPage from "./Pages/SalesPage";
 import PurchasePage from "./Pages/PurchasePage";
 import CreditPage from "./Pages/CreditPage";
 import ProfileSettings from "./Pages/Profile";
-import ProductPage from "./Pages/AddPurchase";
+import SaleItem from "./Pages/SaleItem";
 import BillsAccordion from "./components/Bills";
 import PaymentPage from "./Pages/PaymentPage";
 
@@ -33,10 +33,10 @@ function App() {
               <Route path="/purchase" element={<PurchasePage />} />
               <Route path="/credit" element={<CreditPage />} />
               <Route path="/profile" element={<ProfileSettings />} />
-              <Route path="/sales/purchaseProduct" element={<ProductPage />} />
+              <Route path="/sales/saleItem" element={<SaleItem />} />
               <Route path="purchase/bills" element={<BillsAccordion />} />
               <Route path="/payment" element={<PaymentPage />} />
-            </Routes>
+                        </Routes>
           </div>
         </div>
       </div>
