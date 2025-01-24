@@ -1,24 +1,29 @@
 import React, { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import Card from "../DashComp/Card";
 import Button from "../Button";
 import InvoiceDetails from "./InvoivePurchase";
 import ProductForm from "./ProductFrom";
+import InventoryTable from "./Table";
 import { useDispatch, useSelector } from "react-redux";
+
 import {
   addInvoice,
   updateInvoice,
 } from "../../redux/Slices/purchaseInvoiceSlice";
 import { addProduct } from "../../redux/Slices/productsSlice";
+import { setSearchTerm } from "../../redux/Slices/searchSlice";
+import { setCategory } from "../../redux/Slices/categorySlice";
 
 const InventoryHeader = () => {
   const [isPurchasePopupOpen, setIsPurchasePopupOpen] = useState(false);
-  const [isProductFormOpen, setIsProductFormOpen] = useState(false); // Track product form visibility
+  const [isProductFormOpen, setIsProductFormOpen] = useState(false);
+
   const [invoiceData, setInvoiceData] = useState({
     purchaseDate: "",
     partyId: "",
     purchaseInvoice: "",
   });
-
   const [productData, setProductData] = useState({
     name: "",
     category: "",
@@ -26,17 +31,25 @@ const InventoryHeader = () => {
     price: "",
     status: "",
   });
+
   const dispatch = useDispatch();
   const invoices = useSelector((state) => state.purchaseInvoices);
   const products = useSelector((state) => state.products);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setInvoiceData({ ...invoiceData, [name]: value });
+  const searchTerm = useSelector((state) => state.search.searchTerm);
+  const selectedCategory = useSelector(
+    (state) => state.category.selectedCategory
+  );
+
+  const handleSearch = (e) => {
+    dispatch(setSearchTerm(e.target.value));
+  };
+
+  const handleCategoryChange = (e) => {
+    dispatch(setCategory(e.target.value));
   };
 
   const togglePurchasePopup = () => {
-    setIsPurchasePopupOpen(!isPurchasePopupOpen);
     if (!isPurchasePopupOpen) {
       setInvoiceData({
         purchaseDate: "",
@@ -44,6 +57,7 @@ const InventoryHeader = () => {
         purchaseInvoice: invoices.purchaseInvoice || "",
       });
     }
+    setIsPurchasePopupOpen(!isPurchasePopupOpen);
   };
 
   const handlePurchaseSubmit = (e) => {
@@ -58,8 +72,8 @@ const InventoryHeader = () => {
   };
 
   const handleProductSubmit = (e) => {
-    e.preventDefault();
-    dispatch(addProduct(productData));
+    const productWithId = { ...productData, id: uuidv4() }; // Add unique id using uuidv4
+    dispatch(addProduct(productWithId));
     setIsProductFormOpen(false);
     setProductData({
       name: "",
@@ -70,6 +84,16 @@ const InventoryHeader = () => {
     });
   };
 
+  const lowStockCount = products.filter((product) => {
+    const stockAmount = parseInt(product.stock);
+    return stockAmount < 20;
+  }).length;
+
+  const outOfStockCount = products.filter((product) => {
+    const stockAmount = parseInt(product.stock);
+    return stockAmount == 0;
+  }).length;
+
   const data = [
     {
       title: "Total Products",
@@ -79,13 +103,13 @@ const InventoryHeader = () => {
     },
     {
       title: "Low Stock Items",
-      value: "12",
+      value: lowStockCount,
       indicator: "Alert",
       indicatorColor: "red",
     },
     {
       title: "Out of Stock",
-      value: "8",
+      value: outOfStockCount,
       indicator: "Critical",
       indicatorColor: "red",
     },
@@ -116,10 +140,18 @@ const InventoryHeader = () => {
           <input
             type="text"
             placeholder="Search products..."
+            aria-label="Search Products"
+            value={searchTerm}
+            onChange={handleSearch}
             className="pl-10 pr-4 py-1 border text-xs md:text-sm border-gray-300 rounded-lg"
           />
-          <select className="px-2 py-1 md:py-2 border text-xs md:text-base rounded-lg">
-            <option value="">All Categories</option>
+          <select
+            className="px-2 py-1 md:py-2 border text-xs md:text-base rounded-lg
+          "
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+          >
+            <option value="All">All Categories</option>
             <option value="Fertilizers">Fertilizers</option>
             <option value="Seeds">Seeds</option>
             <option value="Machinery">Machinery</option>
@@ -139,7 +171,9 @@ const InventoryHeader = () => {
       <InvoiceDetails
         isOpen={isPurchasePopupOpen}
         invoiceData={invoiceData}
-        handleChange={handleChange}
+        handleChange={(e) =>
+          setInvoiceData({ ...invoiceData, [e.target.name]: e.target.value })
+        }
         handlePurchaseSubmit={handlePurchaseSubmit}
         togglePurchasePopup={togglePurchasePopup}
       />
@@ -152,6 +186,9 @@ const InventoryHeader = () => {
           setIsProductFormOpen={setIsProductFormOpen}
         />
       )}
+      <div className="mt-10">
+        <InventoryTable />
+      </div>
     </div>
   );
 };

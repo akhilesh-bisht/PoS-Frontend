@@ -36,7 +36,7 @@ function App() {
               <Route path="/sales/saleItem" element={<SaleItem />} />
               <Route path="purchase/bills" element={<BillsAccordion />} />
               <Route path="/payment" element={<PaymentPage />} />
-                        </Routes>
+            </Routes>
           </div>
         </div>
       </div>

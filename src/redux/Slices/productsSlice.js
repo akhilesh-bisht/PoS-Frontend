@@ -10,17 +10,25 @@ const loadProductsFromLocalStorage = () => {
           id: 1,
           name: "NPK Fertilizer",
           category: "Fertilizers",
-          stock: "250 units",
-          price: "₹750/unit",
+          stock: 250,
+          price: 750,
           status: "In Stock",
         },
         {
           id: 2,
           name: "Wheat Seeds",
           category: "Seeds",
-          stock: "50 kg",
-          price: "₹120/kg",
+          stock: 50,
+          price: 120,
           status: "Low Stock",
+        },
+        {
+          id: 3,
+          name: "Tractor",
+          category: "Machinery",
+          stock: 0,
+          price: 150000,
+          status: "Out of Stock",
         },
       ];
 };
@@ -32,11 +40,11 @@ const saveProductsToLocalStorage = (state) => {
 
 const productsSlice = createSlice({
   name: "products",
-  initialState: loadProductsFromLocalStorage(), // Initialize state with localStorage data
+  initialState: loadProductsFromLocalStorage(),
   reducers: {
     addProduct: (state, action) => {
       state.push(action.payload);
-      saveProductsToLocalStorage(state); // Save to localStorage after adding a product
+      saveProductsToLocalStorage(state);
     },
     editProduct: (state, action) => {
       const { id, name, category, stock, price, status } = action.payload;
@@ -47,14 +55,14 @@ const productsSlice = createSlice({
         product.stock = stock;
         product.price = price;
         product.status = status;
-        saveProductsToLocalStorage(state); // Save to localStorage after editing a product
+        saveProductsToLocalStorage(state);
       }
     },
     deleteProduct: (state, action) => {
       const updatedState = state.filter(
         (product) => product.id !== action.payload
       );
-      saveProductsToLocalStorage(updatedState); // Save to localStorage after deleting a product
+      saveProductsToLocalStorage(updatedState); // Save to local storage before returning
       return updatedState;
     },
   },
