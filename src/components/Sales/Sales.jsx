@@ -1,6 +1,7 @@
 import React from "react";
 import Card from "../DashComp/Card";
 import Button from "../Button";
+import GraphSaleAnaylysis from "../GraphSalesAnalyse";
 import { useNavigate } from "react-router-dom";
 const SalesManagement = () => {
   const navigate = useNavigate();
@@ -107,20 +108,8 @@ const SalesManagement = () => {
       <div className="bg-white p-6 rounded-lg border border-gray-200">
         <div className="flex justify-between items-center mb-6">
           <h3 className=" text-sm lg:text-lg font-semibold">Sales Trend</h3>
-          <div className="flex gap-1 sm:gap-3">
-            {["Daily", "Weekly", "Monthly"].map((button, index) => (
-              <button
-                key={index}
-                className=" px-2 md:px-3 py-1 text-[8px] sm:text-xs lg:text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                {button}
-              </button>
-            ))}
-          </div>
         </div>
-        <div className="h-64 bg-gray-50 rounded border border-gray-200 flex items-center justify-center">
-          <span className="text-gray-500">Sales Chart Placeholder</span>
-        </div>
+        <GraphSaleAnaylysis />
       </div>
 
       {/* Recent Sales */}

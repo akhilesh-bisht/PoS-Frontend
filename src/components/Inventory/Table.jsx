@@ -1,48 +1,71 @@
-import React from "react";
-import { useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { deleteProduct, editProduct } from "../../redux/Slices/productsSlice";
-import data from "../Data";
 
+// Main InventoryTable component
 const InventoryTable = () => {
   const dispatch = useDispatch();
-  const products = useSelector((state) => state.products);
-  const [isEditing, setIsEditing] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
+  // Access products and search-related states from the Redux store
+  const products = useSelector((state) => state.products); // List of products
   const searchTerm = useSelector((state) =>
     state.search.searchTerm.toLowerCase()
-  );
+  ); // Current search term (converted to lowercase)
   const selectedCategory = useSelector(
     (state) => state.category.selectedCategory
-  );
+  ); // Currently selected category
 
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm);
-    const matchesCategory =
-      selectedCategory === "All" || product.category === selectedCategory;
+  // Component's internal state
+  const [isEditing, setIsEditing] = useState(false); // Controls visibility of the edit modal
+  const [selectedProduct, setSelectedProduct] = useState(null); // Tracks the product being edited
 
-    return matchesSearch && matchesCategory;
-  });
+  /**
+   * Memoized filtering logic to avoid unnecessary re-renders
+   * Filters products based on the search term and selected category
+   */
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm);
+      const matchesCategory =
+        selectedCategory === "All" || product.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, searchTerm, selectedCategory]);
 
-  const handleEditClick = (product) => {
+  /**
+   * Handles the "Edit" button click
+   * Opens the edit modal and sets the selected product for editing
+   */
+  const handleEditClick = useCallback((product) => {
     setSelectedProduct(product);
     setIsEditing(true);
-  };
+  }, []);
 
-  const handleSaveChanges = () => {
-    dispatch(editProduct(selectedProduct));
-    setIsEditing(false);
-  };
+  /**
+   * Handles saving changes to the edited product
+   * Dispatches the editProduct action to update the product in the Redux store
+   */
+  const handleSaveChanges = useCallback(() => {
+    if (selectedProduct) {
+      dispatch(editProduct(selectedProduct));
+    }
+    setIsEditing(false); // Closes the modal
+  }, [dispatch, selectedProduct]);
 
-  const handleDeleteProduct = (id) => {
-    dispatch(deleteProduct(id));
-    console.log(id);
-  };
+  /**
+   * Handles deleting a product
+   * Dispatches the deleteProduct action to remove the product from the Redux store
+   */
+  const handleDeleteProduct = useCallback(
+    (id) => {
+      dispatch(deleteProduct(id));
+    },
+    [dispatch]
+  );
 
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
-      {/* Table Wrapper */}
+      {/* Table wrapper */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           {/* Table Header */}
@@ -71,24 +94,29 @@ const InventoryTable = () => {
 
           {/* Table Body */}
           <tbody className="bg-white divide-y divide-gray-200">
-            {filteredProducts.map((product, index) => (
-              <tr key={product.id || index}>
+            {filteredProducts.map((product) => (
+              <tr key={product.id}>
+                {/* Product Name */}
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">
                   {product.name}
                 </td>
+                {/* Category */}
                 <td className="px-6 py-4 text-sm text-gray-500">
                   {product.category}
                 </td>
+                {/* Stock */}
                 <td className="px-6 py-4 text-sm text-gray-500">
                   {product.stock}
                 </td>
+                {/* Price */}
                 <td className="px-6 py-4 text-sm text-gray-500">
-                  ₹{`${product.price}`}
+                  ₹{product.price}
                 </td>
-                <td className="px-6 py-4  text-sm text-gray-500">
+                {/* Stock Status */}
+                <td className="px-6 py-4 text-sm text-gray-500">
                   {product.stock < 20 ? (
-                    <span className="text-red-500 font-semibold  md:bg-red-200 py-0.5 px-3 rounded-lg">
-                      low Stock
+                    <span className="text-red-500 font-semibold md:bg-red-200 py-0.5 px-3 rounded-lg">
+                      Low Stock
                     </span>
                   ) : (
                     <span className="text-green-700 md:bg-green-200 font-semibold py-0.5 px-3 rounded-lg">
@@ -96,15 +124,14 @@ const InventoryTable = () => {
                     </span>
                   )}
                 </td>
+                {/* Actions (Edit/Delete) */}
                 <td className="px-6 py-4 text-right text-sm font-medium">
-                  {/* Edit Button */}
                   <button
                     onClick={() => handleEditClick(product)}
                     className="text-indigo-600 hover:text-indigo-900"
                   >
                     Edit
                   </button>
-                  {/* Delete Button */}
                   <button
                     onClick={() => handleDeleteProduct(product.id)}
                     className="text-red-600 hover:text-red-900 ml-4"
@@ -117,7 +144,8 @@ const InventoryTable = () => {
           </tbody>
         </table>
       </div>
-      {/* Edit Product Modal */}
+
+      {/* Edit Modal */}
       {isEditing && selectedProduct && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
@@ -125,7 +153,7 @@ const InventoryTable = () => {
               Edit Product
             </h2>
             <form className="space-y-4">
-              {/* Product Name */}
+              {/* Product Name Input */}
               <div>
                 <label
                   htmlFor="productName"
@@ -147,7 +175,7 @@ const InventoryTable = () => {
                 />
               </div>
 
-              {/* Category */}
+              {/* Category Input */}
               <div>
                 <label
                   htmlFor="category"
@@ -169,7 +197,7 @@ const InventoryTable = () => {
                 />
               </div>
 
-              {/* Stock */}
+              {/* Stock Input */}
               <div>
                 <label
                   htmlFor="stock"
@@ -191,7 +219,7 @@ const InventoryTable = () => {
                 />
               </div>
 
-              {/* Price */}
+              {/* Price Input */}
               <div>
                 <label
                   htmlFor="price"
@@ -214,7 +242,7 @@ const InventoryTable = () => {
               </div>
             </form>
 
-            {/* Modal Actions */}
+            {/* Modal Buttons */}
             <div className="flex justify-end space-x-3 mt-6">
               <button
                 onClick={() => setIsEditing(false)}
