@@ -142,7 +142,7 @@ const InventoryHeader = () => {
               />
             }
             onClick={togglePurchasePopup}
-            styles="bg-blue-500 hover:bg-blue-600"
+            styles="bg-blue-500 hover:bg-blue-600 w-[7rem] sm:w-[7rem] md:w-32"
           />
         </div>
         {/* Search and category filter inputs */}

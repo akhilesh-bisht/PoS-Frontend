@@ -83,7 +83,7 @@ const Navbar = () => {
 
             {/* Create Invoice Button */}
             <Link to="/sales/saleItem">
-              <button className="bg-blue-500 text-white px-4 py-1 text-[7px] md:text-base rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition">
+              <button className="bg-blue-500 text-white px-3 py-1 text-[7px] md:text-base rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition">
                 Create Invoice
               </button>
             </Link>
@@ -98,10 +98,12 @@ const Navbar = () => {
           <div className="flex items-center justify-center mr-4">
             <button
               onClick={handleInstall}
-              className="relative px-3 py-1 sm:px-4 sm:py-2 font-semibold text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full shadow-lg overflow-hidden group hover:scale-105 transition-all duration-300 ease-in-out"
+              className="relative px-3 py-1 sm:px-4 sm:py-2 w-[75px]  sm:w-full font-semibold text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full shadow-lg overflow-hidden group hover:scale-105 transition-all duration-300 ease-in-out"
             >
-              <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out blur-lg"></span>
-              <span className="relative text-xs sm:text-sm">Install App</span>
+              <span className="absolute inset-0  h-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out blur-lg"></span>
+              <span className="relative text-[10px] sm:text-sm">
+                Install App
+              </span>
             </button>
           </div>
         )}

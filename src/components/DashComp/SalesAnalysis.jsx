@@ -59,7 +59,7 @@ const SalesAnalysis = () => {
     <section className=" sm:p-6 space-y-6">
       {/* Sales Analysis Chart */}
 
-      <div className="bg-white  sm:p-6 rounded-lg border border-gray-200">
+      <div className="bg-white   mt-2 ml-2 sm:mt-0 sm:ml-0 sm:p-6 rounded-lg border border-gray-200">
         <h1 className="text-base md:text-xl font-semibold">Sales Analysis </h1>
         <GraphSaleAnaylysis />
       </div>

@@ -4,8 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 // Lazy load components
-const Sidebar = lazy(() => import("./components/Sidebar"));
-
+const Sidebar = lazy(() => import("./Components/Sidebar"));
 const Navbar = lazy(() => import("./components/Navbar"));
 const Dashboard = lazy(() => import("./Pages/DashBoard"));
 const InventoryPage = lazy(() => import("./Pages/InventoryPage"));
