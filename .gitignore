@@ -9,6 +9,8 @@ lerna-debug.log*
 
 node_modules
 vite-project
+images
+README.pdf
 dist
 dist-ssr
 *.local

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import products from "../components/Data";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/Slices/cartSlice";
 import toast, { Toaster } from "react-hot-toast";
+import { FaSpinner } from "react-icons/fa";
 
 const SaleItem = () => {
   const dispatch = useDispatch();
@@ -14,10 +14,14 @@ const SaleItem = () => {
   const [discount, setDiscount] = useState(0);
   const handleToast = (name) => toast.success(`Add to cart ${name} `);
 
-  const itemsPerPage = 10;
+  const products = useSelector((state) => state.products);
+  const status = useSelector((state) => state.products.status);
+  const error = useSelector((state) => state.products.error);
+
+  const itemsPerPage = 25;
 
   const handleFilter = () => {
-    let filtered = products.filter((product) =>
+    let filtered = products.items.filter((product) =>
       product.name.toLowerCase().includes(search.toLowerCase())
     );
 
@@ -26,6 +30,7 @@ const SaleItem = () => {
     }
     return filtered;
   };
+
   const handleAddToCart = () => {
     if (!selectedProduct) return;
 
@@ -43,10 +48,9 @@ const SaleItem = () => {
     );
 
     handleToast(selectedProduct.name);
-    handleClose(); // Close the dropdown after adding to cart
+    handleClose();
   };
 
-  // Calculate filtered products and pagination
   const filteredProducts = handleFilter();
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -62,12 +66,12 @@ const SaleItem = () => {
 
   const handlePurchaseClick = (product) => {
     setSelectedProduct(product);
-    setQuantity(1); // Reset quantity
-    setDiscount(0); // Reset discount
+    setQuantity(1);
+    setDiscount(0);
   };
 
   const handleClose = () => {
-    setSelectedProduct(null); // Close the dropdown
+    setSelectedProduct(null);
   };
 
   return (
@@ -96,65 +100,74 @@ const SaleItem = () => {
         </div>
       </div>
 
-      {/* Product Table */}
-      <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-200 text-xs sm:text-base">
-            <th className="border border-gray-300 p-2">Product</th>
-            <th className="border border-gray-300 p-2">Category</th>
-            <th className="border border-gray-300 p-2">Stock</th>
-            <th className="border border-gray-300 p-2">Price</th>
-            <th className="border border-gray-300 p-2">Status</th>
-            <th className="border border-gray-300 p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedProducts.map((product) => (
-            <tr
-              key={product.id}
-              className="hover:bg-gray-100 text-xs sm:text-base"
-            >
-              <td className="border border-gray-300 p-2">{product.name}</td>
-              <td className="border border-gray-300 p-2">{product.category}</td>
-              <td className="border border-gray-300 p-2">{product.stock}</td>
-              <td className="text-center">
-                ₹{product.price} {product.unit}
-              </td>
-              <td
-                className={`border border-gray-300 p-2 ${
-                  product.status === "Low Stock"
-                    ? "text-red-500"
-                    : "text-green-600"
-                }`}
-              >
-                {product.status}
-              </td>
-              <td className="border border-gray-300 p-2">
-                <button
-                  className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
-                  onClick={() => handlePurchaseClick(product)}
+      {status === "loading" ? (
+        <div className="flex flex-col items-center justify-center h-96">
+          <FaSpinner className="animate-spin text-4xl text-blue-600 mb-4" />
+          <p className="text-gray-600">Loading products...</p>
+        </div>
+      ) : status === "failed" ? (
+        <div className="text-center text-red-500 p-4">
+          Error loading products: {error}
+        </div>
+      ) : (
+        <>
+          <table className="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-200 text-xs sm:text-base">
+                <th className="border border-gray-300 p-2">Product</th>
+                <th className="border border-gray-300 p-2">Category</th>
+                <th className="border border-gray-300 p-2">Stock</th>
+                <th className="border border-gray-300 p-2">Price</th>
+                <th className="border border-gray-300 p-2">Status</th>
+                <th className="border border-gray-300 p-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedProducts.map((product, index) => (
+                <tr
+                  key={index}
+                  className="hover:bg-gray-100 text-xs sm:text-base"
                 >
-                  Add to Bill
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                  <td className="border border-gray-300 p-2">{product.name}</td>
+                  <td className="border border-gray-300 p-2">
+                    {product.category}
+                  </td>
+                  <td className="border border-gray-300 p-2">
+                    {product.stock}
+                  </td>
+                  <td className="text-center">
+                    ₹{product.price} {product.unit}
+                  </td>
+                  <td
+                    className={`border border-gray-300 p-2 ${
+                      product.status === "Low Stock"
+                        ? "text-red-500"
+                        : "text-green-600"
+                    }`}
+                  >
+                    {product.status}
+                  </td>
+                  <td className="border border-gray-300 p-2">
+                    <button
+                      className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
+                      onClick={() => handlePurchaseClick(product)}
+                    >
+                      Add to Bill
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-      {/* No Products Found */}
-      {filteredProducts.length === 0 && (
-        <div className="text-center text-gray-500 mt-4">No products found.</div>
+          {filteredProducts.length === 0 && (
+            <div className="text-center text-gray-500 mt-4">
+              No products found.
+            </div>
+          )}
+        </>
       )}
 
-      {/* Pagination */}
-      {/* <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        setCurrentPage={setCurrentPage}
-      /> */}
-
-      {/* Purchase Dropdown */}
       {selectedProduct && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">

@@ -1,203 +1,289 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { IoClose } from "react-icons/io5";
 
-// The ProductForm component for adding/editing product details.
+const LOCAL_STORAGE_KEY = "purchaseDetails";
+
 const ProductForm = ({
-  productData, // Current product data state
-  setProductData, // Function to update product data
-  handleSubmit, // Function to handle form submission
-  setIsProductFormOpen, // Function to toggle form visibility
+  productData,
+  setProductData,
+  handleSubmit,
+  onClose,
 }) => {
-  // Local state for error messages
-  const [error, setError] = useState("");
+  const [currentStep, setCurrentStep] = useState(0);
+  const [animationClass, setAnimationClass] = useState("enter");
+  const [direction, setDirection] = useState("forward");
+  const [errors, setErrors] = useState({});
 
-  // Handle input changes and update productData state
-  const handleChange = useCallback(
-    (e) => {
-      const { name, value } = e.target;
-      setProductData((prevProductData) => ({
-        ...prevProductData,
-        [name]: name === "stock" ? parseInt(value, 10) : value, // Parse stock as a number
+  const formSections = [
+    {
+      id: "basic",
+      label: "Basic Info",
+      fields: [
+        { name: "product_name", label: "Product Name", type: "text" },
+        {
+          name: "category",
+          label: "Category",
+          type: "select",
+          options: ["Fertilizers", "Seeds", "Machinery", "Pesticides"],
+        },
+        { name: "package", label: "Package", type: "text" },
+      ],
+    },
+    {
+      id: "tax",
+      label: "Tax Details",
+      fields: [
+        { name: "hsn_code", label: "HSN Code", type: "number" },
+        { name: "gst_rate", label: "GST Rate (%)", type: "number" },
+      ],
+    },
+    {
+      id: "inventory",
+      label: "Inventory",
+      fields: [
+        { name: "quantity", label: "Quantity", type: "number" },
+        { name: "min_quantity", label: "Min Quantity", type: "number" },
+        { name: "batch_no", label: "Batch No.", type: "text" },
+        { name: "exp_date", label: "Expiry Date", type: "date" },
+      ],
+    },
+    {
+      id: "purchase",
+      label: "Purchase",
+      fields: [
+        { name: "purchase_date", label: "Purchase Date", type: "date" },
+        { name: "party_id", label: "Party ID", type: "text" },
+        { name: "purchase_invoice", label: "Invoice No.", type: "text" },
+        { name: "rate", label: "Rate (₹)", type: "number" },
+      ],
+    },
+  ];
+
+  useEffect(() => {
+    const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      setProductData((prev) => ({
+        ...prev,
+        ...parsedData,
       }));
-    },
-    [setProductData]
-  );
-  // Handle form submission
-  const handleSubmitProduct = useCallback(
-    (e) => {
-      e.preventDefault();
+    }
+  }, []);
 
-      // Validate stock and price to ensure they are not negative
-      if (productData.stock < 0 || productData.price < 0) {
-        setError("Stock and Price cannot be negative!");
-        return;
+  const validateField = (name, value) => {
+    switch (name) {
+      case "product_name":
+        return value.trim() ? "" : "Product name is required";
+      case "hsn_code":
+        return /^\d{6}$/.test(value)
+          ? ""
+          : "Invalid HSN Code (6 digits required)";
+      case "gst_rate":
+        return value >= 0 && value <= 28 ? "" : "GST Rate must be 0-28%";
+      case "exp_date":
+        return new Date(value) > new Date()
+          ? ""
+          : "Expiry date must be in future";
+      case "quantity":
+      case "min_quantity":
+        return value >= 0 ? "" : "Value cannot be negative";
+
+      case "purchase_date":
+        if (!value) return "Purchase date is required";
+        return new Date(value) <= new Date()
+          ? ""
+          : "Purchase date cannot be in future";
+      case "rate":
+        return value >= 0 ? "" : "Rate must be non-negative";
+      default:
+        return "";
+    }
+  };
+
+  const validateSection = (sectionIndex) => {
+    const section = formSections[sectionIndex];
+    const sectionErrors = section.fields.reduce((acc, field) => {
+      const error = validateField(field.name, productData[field.name]);
+      return error ? { ...acc, [field.name]: error } : acc;
+    }, {});
+
+    setErrors(sectionErrors);
+    return Object.keys(sectionErrors).length === 0;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProductData((prev) => ({
+      ...prev,
+      [name]: name.endsWith("_date")
+        ? value
+        : isNaN(value) || value === ""
+        ? value
+        : Number(value),
+    }));
+    setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
+  };
+
+  const handleNext = () => {
+    if (validateSection(currentStep)) {
+      setDirection("forward");
+      setAnimationClass("exit");
+    }
+  };
+
+  const handleSubmitForm = (e) => {
+    e.preventDefault();
+    if (currentStep === formSections.length - 1) {
+      const allErrors = formSections.reduce((acc, section) => {
+        const sectionErrors = section.fields.reduce((sectionAcc, field) => {
+          const error = validateField(field.name, productData[field.name]);
+          return error ? { ...sectionAcc, [field.name]: error } : sectionAcc;
+        }, {});
+        return { ...acc, ...sectionErrors };
+      }, {});
+
+      if (Object.keys(allErrors).length === 0) {
+        const purchaseData = {
+          party_id: productData.party_id,
+          purchase_date: productData.purchase_date,
+          purchase_invoice: productData.purchase_invoice,
+        };
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(purchaseData));
+        handleSubmit(productData);
+
+        onClose();
+      } else {
+        setErrors(allErrors);
       }
+    }
+  };
 
-      // Clear error state if validation passes
-      setError("");
+  const handleAnimationEnd = () => {
+    if (animationClass === "exit") {
+      if (currentStep < formSections.length - 1) {
+        setCurrentStep((prev) => prev + 1);
+      }
+      setAnimationClass("enter");
+    }
+  };
 
-      // Create a new product object with a calculated status
-      const newProduct = {
-        ...productData,
-        status: productData.stock < 20 ? "Low Stock" : "In Stock",
-      };
-
-      // Call the parent's handleSubmit function with the new product
-      handleSubmit(newProduct);
-
-      // Close the form after submission
-      closeForm();
-    },
-    [productData, handleSubmit]
-  );
-
-  // Close the form and reset product data to its initial state
-  const closeForm = useCallback(() => {
-    setIsProductFormOpen(false);
-    setProductData({
-      name: "",
-      category: "All",
-      stock: 0,
-      price: 0,
-    });
-  }, [setIsProductFormOpen, setProductData]);
-
-  // Calculate the product's status dynamically based on stock
-  const status = useMemo(() => {
-    if (productData.stock === 0 || isNaN(productData.stock)) return "Unknown";
-    return productData.stock < 20 ? "Low Stock" : "In Stock";
-  }, [productData.stock]);
+  useEffect(() => {
+    if (currentStep === formSections.length - 1) {
+      setAnimationClass("final-step");
+    }
+  }, [currentStep]);
 
   return (
-    // Overlay container for the form
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 opacity-100">
-      {/* Form container */}
-      <div className="fixed top-0 right-0 w-full md:w-1/3 h-full bg-white shadow-lg z-50 transition-transform duration-300 translate-x-0">
-        <div className="p-6">
-          {/* Header with title and close button */}
-          <div className="flex justify-between items-center">
-            <h3 className="text-base ml-8 md:m-0 md:text-lg font-medium mb-4">
-              Product Details
-            </h3>
-            <button
-              onClick={closeForm}
-              className="cursor-pointer text-xl hover:text-red-500"
-            >
-              X
-            </button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
+        <div className="flex justify-between mb-4">
+          <h2 className="text-xl font-semibold">Product Details</h2>
+          <button onClick={onClose} className="text-2xl">
+            <IoClose />
+          </button>
+        </div>
+
+        <div className="flex gap-2 mb-4">
+          {formSections.map((section, index) => (
+            <div key={section.id} className="relative flex-1">
+              <div
+                className={`h-1 bg-gray-200 rounded-full ${
+                  index <= currentStep ? "bg-blue-500" : ""
+                }`}
+              >
+                <div
+                  className={`h-full bg-green-500 rounded-full transition-all duration-300 ${
+                    index === currentStep ? "w-full" : "w-0"
+                  }`}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <form onSubmit={handleSubmitForm} className="grid grid-cols-2 gap-4">
+          <div
+            className={`col-span-2 grid grid-cols-2 gap-4 transition-transform duration-300 ${
+              animationClass === "exit"
+                ? direction === "forward"
+                  ? "-translate-x-full opacity-0"
+                  : "translate-x-full opacity-0"
+                : "translate-x-0 opacity-100"
+            }`}
+            onTransitionEnd={handleAnimationEnd}
+          >
+            {formSections[currentStep].fields.map((field) => (
+              <div key={field.name} className="space-y-1">
+                <label className="block text-sm font-medium">
+                  {field.label}
+                </label>
+                {field.type === "select" ? (
+                  <select
+                    name={field.name}
+                    value={productData[field.name]}
+                    onChange={handleChange}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="">Select {field.label}</option>
+                    {field.options.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type={field.type}
+                    name={field.name}
+                    value={productData[field.name]}
+                    onChange={handleChange}
+                    className="w-full p-2 border rounded"
+                    min={field.type === "number" ? 0 : undefined}
+                  />
+                )}
+                {errors[field.name] && (
+                  <p className="text-red-500 text-sm">{errors[field.name]}</p>
+                )}
+              </div>
+            ))}
           </div>
 
-          {/* Form for product details */}
-          <form
-            onSubmit={handleSubmitProduct}
-            className="space-y-4 text-sm mt-2"
-          >
-            {/* Input for product name */}
-            <label htmlFor="name" className="block text-gray-700">
-              Product Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={productData.name}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-              aria-label="Product Name"
-            />
-
-            {/* Dropdown for product category */}
-            <label htmlFor="category" className="block text-gray-700">
-              Category
-            </label>
-            <select
-              id="category"
-              name="category"
-              value={productData.category}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-              aria-label="Product Category"
-            >
-              <option value="All">All Categories</option>
-              <option value="Fertilizers">Fertilizers</option>
-              <option value="Seeds">Seeds</option>
-              <option value="Pesticides">Pesticides</option>
-              <option value="Manure">Manure</option>
-            </select>
-
-            {/* Input for stock quantity */}
-            <label htmlFor="stock" className="block text-gray-700">
-              Stock Quantity
-            </label>
-            <input
-              type="number"
-              id="stock"
-              name="stock"
-              value={productData.stock}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-              aria-label="Stock Quantity"
-            />
-
-            {/* Input for product price */}
-            <label htmlFor="price" className="block text-gray-700">
-              Price
-            </label>
-            <input
-              type="number"
-              id="price"
-              name="price"
-              value={productData.price}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-              aria-label="Product Price"
-            />
-
-            {/* Read-only input for status */}
-            <label htmlFor="status" className="block text-gray-700">
-              Status
-            </label>
-            <input
-              type="text"
-              id="status"
-              name="status"
-              value={status}
-              className="w-full border p-2 rounded bg-gray-200"
-              readOnly
-            />
-
-            {/* Error message */}
-            {error && <p className="text-red-500">{error}</p>}
-
-            {/* Submit button */}
+          <div className="col-span-2 mt-4 flex justify-end gap-2">
             <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
             >
-              Add Product
+              Cancel
             </button>
-          </form>
-        </div>
+            <button
+              type={
+                currentStep === formSections.length - 1 ? "submit" : "button"
+              }
+              onClick={
+                currentStep === formSections.length - 1 ? null : handleNext
+              }
+              className={`px-4 py-2 text-white rounded ${
+                currentStep === formSections.length - 1
+                  ? "bg-green-600 hover:bg-green-700"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {currentStep === formSections.length - 1 ? "Add Product" : "Next"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
 };
 
-// Prop type validation for ProductForm
 ProductForm.propTypes = {
-  productData: PropTypes.shape({
-    name: PropTypes.string.isRequired, // Product name must be a string
-    category: PropTypes.string.isRequired, // Product category must be a string
-    stock: PropTypes.number.isRequired, // Stock must be a number
-    price: PropTypes.number.isRequired, // Price must be a number
-  }).isRequired,
-  setProductData: PropTypes.func.isRequired, // Must be a function to update product data
-  handleSubmit: PropTypes.func.isRequired, // Must be a function for form submission
-  setIsProductFormOpen: PropTypes.func.isRequired, // Must be a function to toggle form visibility
+  productData: PropTypes.object.isRequired,
+  setProductData: PropTypes.func.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 export default ProductForm;

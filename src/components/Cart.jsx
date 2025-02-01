@@ -38,9 +38,9 @@ const Cart = () => {
         {/* Cart Items */}
         {cartItems.length > 0 ? (
           <div className="space-y-4">
-            {cartItems.map((item) => (
+            {cartItems.map((item, index) => (
               <ItemCard
-                key={item.id}
+                key={index}
                 id={item.id}
                 name={item.name}
                 price={item.price}

@@ -1,7 +1,11 @@
-import React, { Suspense, lazy, memo } from "react";
+import React, { Suspense, lazy, memo, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { useDispatch } from "react-redux";
+import { fetchProducts } from "./redux/Slices/productsSlice";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Lazy load components
 const Sidebar = lazy(() => import("./components/Sidebar"));
@@ -20,9 +24,16 @@ const MemoizedSidebar = memo(Sidebar);
 const MemoizedNavbar = memo(Navbar);
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
   return (
     <Router>
       <div className="app-container flex h-screen">
+        <ToastContainer position="bottom-right" autoClose={3000} />
         <Suspense
           fallback={
             <div className="flex justify-center items-center w-full h-screen">
