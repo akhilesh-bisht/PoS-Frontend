@@ -63,15 +63,16 @@ const InventoryHeader = () => {
 
   return (
     <div className="p-1 md:p-3">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold mb-4 md:mb-0">
+      <div className="flex md:flex-row justify-between ml items-center mb-6">
+        <h1 className="text-lg md:text-2xl font-bold mb-2 md:mb-0">
           Inventory Management
         </h1>
+
         <button
           onClick={() => setIsFormOpen(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="bg-blue-500 text-white px-1 py-1 rounded w-24  text-[10px] sm:text-sm hover:bg-blue-600"
         >
-          Add New Product
+          Add Product
         </button>
       </div>
 
@@ -82,7 +83,7 @@ const InventoryHeader = () => {
           aria-label="Search Products"
           value={searchTerm}
           onChange={handleSearch}
-          className="pl-10 pr-4 py-1 border text-xs md:text-sm border-gray-300 rounded-lg"
+          className="pl-4  py-1 border text-xs md:text-sm border-gray-300 rounded-lg"
         />
         <select
           className="px-2 py-1 md:py-2 border text-xs md:text-base rounded-lg"
@@ -98,7 +99,7 @@ const InventoryHeader = () => {
       </div>
 
       {/* Display Loader or Error */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 mt-4 gap-4 mb-6">
         {status === "loading" ? (
           <div className="flex justify-center items-center w-full col-span-3">
             <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>

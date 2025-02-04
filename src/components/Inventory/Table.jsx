@@ -53,7 +53,7 @@ const InventoryTable = () => {
               ].map((header) => (
                 <th
                   key={header}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                  className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase"
                 >
                   {header}
                 </th>
@@ -62,16 +62,16 @@ const InventoryTable = () => {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {filteredProducts.map((product, index) => (
-              <tr key={index}>
-                <td className="px-6 py-4">{product.name}</td>
-                <td className="px-6 py-4">{product.category}</td>
-                <td className="px-6 py-4">{product.hsn_code}</td>
-                <td className="px-6 py-4">{product.gst_rate}%</td>
-                <td className="px-6 py-4">{product.stock}</td>
-                <td className="px-6 py-4">₹{product.price}</td>
-                <td className="px-6 py-4">
+              <tr key={index} className="text-sm text-black">
+                <td className="px-3 py-1">{product.name}</td>
+                <td className="px-3 py-1">{product.category}</td>
+                <td className="px-3 py-1">{product.hsn_code}</td>
+                <td className="px-3 py-1">{product.gst_rate}%</td>
+                <td className="px-3  py-1">{product.stock}</td>
+                <td className="px-3 py-1">₹{product.price}</td>
+                <td className="px-3 py-1">
                   <span
-                    className={`px-2 py-1 rounded ${
+                    className={`px-2 py-1   rounded ${
                       product.status === "Low Stock"
                         ? "bg-yellow-100 text-yellow-800"
                         : product.status === "Out of Stock"
